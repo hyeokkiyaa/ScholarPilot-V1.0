@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { cn } from '../../lib/utils';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, Settings as SettingsIcon } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 interface SidebarProps {
@@ -11,7 +11,7 @@ export function Sidebar({ className }: SidebarProps) {
     const links = [
         { href: '/', icon: LayoutDashboard, label: 'Projects' },
         // { href: '/templates', icon: Database, label: 'Templates' },
-        // { href: '/settings', icon: SettingsIcon, label: 'Settings' },
+        { href: '/settings', icon: SettingsIcon, label: 'Settings' },
     ];
 
     return (
