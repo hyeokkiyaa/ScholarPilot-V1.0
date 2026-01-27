@@ -10,3 +10,4 @@ pymupdf
 python-dotenv
 pandas
 openpyxl
+tenacity
