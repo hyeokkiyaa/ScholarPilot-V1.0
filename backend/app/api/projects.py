@@ -13,6 +13,14 @@ router = APIRouter()
 def list_projects(db: Session = Depends(get_db)):
     return db.query(Project).all()
 
+@router.get("/templates")
+def list_templates():
+    from app.tools.registry import PROJECT_TEMPLATES
+    return [
+        {"id": key, "name": val["name"], "description": val["description"]}
+        for key, val in PROJECT_TEMPLATES.items()
+    ]
+
 @router.post("/", response_model=ProjectResponse)
 def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
     db_project = Project(**project.model_dump())
@@ -20,8 +28,25 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_project)
     
-    # Create default columns based on template if needed (Logic can be added here or in a service)
-    # For now, just create the project
+    # Create default columns based on template
+    from app.tools.registry import PROJECT_TEMPLATES, TOOL_INFO
+    
+    template_id = project.template or "basic"
+    template = PROJECT_TEMPLATES.get(template_id)
+    
+    if template:
+        for index, tool_name in enumerate(template["columns"]):
+            tool_info = TOOL_INFO.get(tool_name)
+            if tool_info:
+                col = ColumnDef(
+                    project_id=db_project.id,
+                    name=tool_info["name"],
+                    tool_name=tool_name,
+                    order_index=index
+                )
+                db.add(col)
+        db.commit()
+        db.refresh(db_project)
     
     return db_project
 

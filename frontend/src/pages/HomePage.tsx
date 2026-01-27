@@ -10,14 +10,15 @@ import { Select } from '../components/common/Select';
 import { Project } from '../types';
 
 export default function HomePage() {
-    const { projects, fetchProjects, createProject, isLoading } = useProjectStore();
+    const { projects, fetchProjects, createProject, isLoading, templates, fetchTemplates } = useProjectStore();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newProjectName, setNewProjectName] = useState('');
     const [template, setTemplate] = useState('basic');
 
     useEffect(() => {
         fetchProjects();
-    }, [fetchProjects]);
+        fetchTemplates();
+    }, [fetchProjects, fetchTemplates]);
 
     const handleCreate = async () => {
         if (!newProjectName) return;
@@ -88,10 +89,9 @@ export default function HomePage() {
                                     value={template}
                                     onChange={(e) => setTemplate(e.target.value)}
                                 >
-                                    <option value="basic">Basic (Summary, Metadata)</option>
-                                    <option value="experiment">Experiment Comparison</option>
-                                    <option value="survey">Literature Survey</option>
-                                    <option value="se">Software Engineering</option>
+                                    {templates.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name} ({t.description})</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="flex justify-end gap-2 pt-4">
