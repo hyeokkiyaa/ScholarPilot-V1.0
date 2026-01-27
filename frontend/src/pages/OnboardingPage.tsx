@@ -45,8 +45,10 @@ export default function OnboardingPage() {
 
                 <div className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Select Model Provider</label>
+                        <label htmlFor="provider" className="text-sm font-medium">Select Model Provider</label>
                         <select
+                            id="provider"
+                            name="provider"
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             value={provider}
                             onChange={(e) => setProvider(e.target.value)}
@@ -60,6 +62,8 @@ export default function OnboardingPage() {
                     </div>
 
                     <Input
+                        id="apiKey"
+                        name="apiKey"
                         label="API Key"
                         type="password"
                         placeholder="sk-..."
