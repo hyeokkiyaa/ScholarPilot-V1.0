@@ -2,30 +2,37 @@ import { useState } from 'react';
 import { useSettingsStore } from '../stores/settingsStore';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
-import { Select } from '../components/common/Select';
+
 import { useNavigate } from 'react-router-dom';
 
 export default function OnboardingPage() {
     const { updateSettings, saveSettings } = useSettingsStore();
     const navigate = useNavigate();
-    const [step, setStep] = useState(0);
+
     const [apiKey, setApiKey] = useState('');
     const [provider, setProvider] = useState('claude');
 
-    const handleComplete = async () => {
+    const handleComplete = async (e?: React.MouseEvent) => {
+        if (e) e.preventDefault();
+
         if (!apiKey) {
             alert("Please enter an API Key");
             return;
         }
 
         try {
+            // 1. Save to backend first (so we don't switch UI if this fails)
+            await saveSettings();
+
+            // 2. Update local state to trigger App re-render and navigation
             updateSettings({
                 api_key: apiKey,
                 // @ts-ignore
                 model_provider: provider,
                 onboarding_completed: true
             });
-            await saveSettings();
+
+            // 3. Navigation is technically redundant if App redirects, but safe to keep
             navigate('/');
         } catch (error) {
             console.error("Onboarding error:", error);
@@ -71,7 +78,7 @@ export default function OnboardingPage() {
                         onChange={(e) => setApiKey(e.target.value)}
                     />
 
-                    <Button onClick={handleComplete} className="w-full">
+                    <Button type="button" onClick={handleComplete} className="w-full">
                         Get Started
                     </Button>
                 </div>

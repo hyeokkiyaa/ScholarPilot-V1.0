@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Sidebar, Header } from '../components/layout/Layout';
 import { useProjectStore } from '../stores/projectStore';
 import { Button } from '../components/common/Button';
-import { Upload, Play, Settings2, Download } from 'lucide-react';
+import { Upload, Play, Settings2 } from 'lucide-react';
 import { PaperTable } from '../components/papers/PaperTable';
 import { AddPaperModal } from '../components/papers/AddPaperModal';
 import { ColumnManagerModal } from '../components/columns/ColumnManagerModal';

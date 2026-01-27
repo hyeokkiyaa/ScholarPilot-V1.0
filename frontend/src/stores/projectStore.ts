@@ -7,12 +7,14 @@ interface ProjectState {
     currentProject: Project | null;
     columns: ColumnDef[];
     papers: Paper[];
+    templates: { id: string; name: string; description: string }[];
     isLoading: boolean;
     error: string | null;
 
     fetchProjects: () => Promise<void>;
     createProject: (name: string, template: string) => Promise<Project>;
     fetchProjectDetails: (id: string) => Promise<void>;
+    fetchTemplates: () => Promise<void>;
 
     // Column actions
     fetchColumns: (projectId: string) => Promise<void>;
@@ -30,6 +32,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     currentProject: null,
     columns: [],
     papers: [],
+    templates: [],
     isLoading: false,
     error: null,
 
@@ -40,6 +43,15 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
             set({ projects: response.data, isLoading: false });
         } catch (error) {
             set({ error: 'Failed to fetch projects', isLoading: false });
+        }
+    },
+
+    fetchTemplates: async () => {
+        try {
+            const response = await axios.get(`${API_URL}/api/projects/templates`);
+            set({ templates: response.data });
+        } catch (error) {
+            console.error('Failed to fetch templates:', error);
         }
     },
 
@@ -113,8 +125,6 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
             if (input) {
                 // Assuming backend schema handles this input structure
                 formData.append('input_value', input);
-                // Note: Need to adjust depending on how backend expects mixed multipart/json or just fields
-                // For FastAPI UploadFile, form fields work best
             }
 
             await axios.post(`${API_URL}/api/projects/${projectId}/papers`, formData, {

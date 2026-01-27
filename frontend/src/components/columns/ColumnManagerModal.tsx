@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { useProjectStore } from '../../stores/projectStore';
-import { X, Plus, Trash2, GripVertical } from 'lucide-react';
-import { ColumnDef, ToolInfo } from '../../types';
+import { X, Plus, Trash2 } from 'lucide-react';
+
 import axios from 'axios';
 import toast from 'react-hot-toast';
 

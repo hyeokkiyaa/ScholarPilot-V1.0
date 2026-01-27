@@ -9,7 +9,7 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function SettingsPage() {
-    const { settings, fetchSettings, updateSettings, saveSettings, isLoading } = useSettingsStore();
+    const { fetchSettings, updateSettings, saveSettings } = useSettingsStore();
 
     // Local state for Notion inputs to control controlled inputs
     const [notionKey, setNotionKey] = useState('');
@@ -19,7 +19,7 @@ export default function SettingsPage() {
     useEffect(() => {
         fetchSettings().then(() => {
             // Sync store to local state
-            const currentSettings = useSettingsStore.getState().settings;
+            const currentSettings = useSettingsStore.getState();
             setNotionKey(currentSettings.notion_api_key || '');
             setNotionDbId(currentSettings.notion_database_id || '');
         });

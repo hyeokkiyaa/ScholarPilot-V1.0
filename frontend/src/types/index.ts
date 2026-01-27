@@ -48,7 +48,8 @@ export interface Result {
 export interface Settings {
     model_provider: 'claude' | 'openai' | 'gemini' | 'grok' | 'solar';
     api_key: string;
-    notion_token: string | null;
+    notion_api_key: string | null;
+    notion_database_id: string | null;
     notion_enabled: boolean;
     google_sheets_enabled: boolean;
     onboarding_completed: boolean;

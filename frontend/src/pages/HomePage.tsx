@@ -5,7 +5,7 @@ import { Button } from '../components/common/Button';
 import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Input } from '../components/common/Input';
-import { Select } from '../components/common/Select';
+
 // Basic modal implementation inline for now or separate component later
 import { Project } from '../types';
 

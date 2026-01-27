@@ -1,6 +1,6 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { cn } from '../../lib/utils';
-import { LayoutDashboard, Settings as SettingsIcon, Database, BookOpen, LogOut } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 interface SidebarProps {

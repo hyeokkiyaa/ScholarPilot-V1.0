@@ -7,9 +7,9 @@ import {
     SortingState,
     createColumnHelper,
 } from '@tanstack/react-table';
-import { Paper, ColumnDef, Result } from '../../types';
+import { Paper, ColumnDef } from '../../types';
 import { Button } from '../common/Button';
-import { ArrowUpDown, FileText, ExternalLink, RefreshCw, Trash2, Eye } from 'lucide-react';
+import { FileText, ExternalLink, RefreshCw, Trash2, Eye } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import axios from 'axios';
 import { useProjectStore } from '../../stores/projectStore';
