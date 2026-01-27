@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Sidebar, Header } from '../components/layout/Layout';
 import { useProjectStore } from '../stores/projectStore';
 import { Button } from '../components/common/Button';
-import { Upload, Play, Settings2 } from 'lucide-react';
+import { Upload, Play, Settings2, Download } from 'lucide-react';
 import { PaperTable } from '../components/papers/PaperTable';
 import { AddPaperModal } from '../components/papers/AddPaperModal';
 import { ColumnManagerModal } from '../components/columns/ColumnManagerModal';
@@ -18,6 +18,7 @@ export default function ProjectPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -46,6 +47,27 @@ export default function ProjectPage() {
         }
     };
 
+    const handleExport = async (type: 'excel' | 'csv' | 'markdown' | 'notion') => {
+        if (!id) return;
+
+        if (type === 'notion') {
+            setIsExporting(true);
+            try {
+                const res = await axios.post(`${API_URL}/api/projects/${id}/export/notion`);
+                toast.success(`Exported ${res.data.exported} papers to Notion!`);
+            } catch (error) {
+                toast.error('Failed to export to Notion');
+            } finally {
+                setIsExporting(false);
+            }
+            return;
+        }
+
+        // For file downloads, we can just open in new window or use fetch blob
+        // Using window.open is simplest for GET downloads
+        window.open(`${API_URL}/api/projects/${id}/export/${type}`);
+    };
+
     if (isLoading && !currentProject) {
         return <div className="flex h-screen items-center justify-center">Loading...</div>;
     }
@@ -62,6 +84,21 @@ export default function ProjectPage() {
                     title={currentProject.name}
                     actions={
                         <div className="flex gap-2">
+                            <div className="flex items-center gap-1 mr-2 border-r pr-2">
+                                <Button variant="ghost" size="sm" onClick={() => handleExport('excel')} title="Export Excel">
+                                    XLSX
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleExport('csv')} title="Export CSV">
+                                    CSV
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleExport('markdown')} title="Export Markdown">
+                                    MD
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleExport('notion')} disabled={isExporting} title="Export to Notion">
+                                    Notion
+                                </Button>
+                            </div>
+
                             <Button variant="outline" onClick={() => setIsColumnModalOpen(true)}>
                                 <Settings2 className="mr-2 h-4 w-4" />
                                 Columns

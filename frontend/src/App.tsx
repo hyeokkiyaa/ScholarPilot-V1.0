@@ -4,6 +4,7 @@ import { useSettingsStore } from './stores/settingsStore';
 import HomePage from './pages/HomePage';
 import ProjectPage from './pages/ProjectPage';
 import OnboardingPage from './pages/OnboardingPage';
+import SettingsPage from './pages/SettingsPage';
 
 // Placeholder Pages (will implement next)
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -28,6 +29,7 @@ function App() {
                     <>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/project/:id" element={<ProjectPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </>
                 )}
