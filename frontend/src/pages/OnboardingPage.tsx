@@ -13,14 +13,24 @@ export default function OnboardingPage() {
     const [provider, setProvider] = useState('claude');
 
     const handleComplete = async () => {
-        updateSettings({
-            api_key: apiKey,
-            // @ts-ignore
-            model_provider: provider,
-            onboarding_completed: true
-        });
-        await saveSettings();
-        navigate('/');
+        if (!apiKey) {
+            alert("Please enter an API Key");
+            return;
+        }
+
+        try {
+            updateSettings({
+                api_key: apiKey,
+                // @ts-ignore
+                model_provider: provider,
+                onboarding_completed: true
+            });
+            await saveSettings();
+            navigate('/');
+        } catch (error) {
+            console.error("Onboarding error:", error);
+            alert("Failed to save settings. Check console for details.");
+        }
     };
 
     return (
