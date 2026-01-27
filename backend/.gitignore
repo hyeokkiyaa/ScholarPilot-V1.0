@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db
+*.sqlite
+dev.db
+
+# Storage
+uploads/
+*.pdf
+
+# Logs
+*.log
+celerybeat-schedule

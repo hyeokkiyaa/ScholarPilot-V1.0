@@ -1,0 +1,43 @@
+# General
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Sensitive
+.env
+.env.*
+!.env.example
+
+# Docker
+docker-data/
+
+# Data
+data/
+*.db
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+build/
+.npm/
+
+# Backend specific (if running locally without docker)
+backend/dev.db
+backend/uploads/
+
+# Frontend specific
+frontend/dist/
+frontend/coverage/
