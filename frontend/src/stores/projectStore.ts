@@ -23,6 +23,7 @@ interface ProjectState {
     // Paper actions
     fetchPapers: (projectId: string) => Promise<void>;
     addPaper: (projectId: string, file: File | null, input: string) => Promise<void>;
+    deletePaper: (paperId: string) => Promise<void>;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -136,6 +137,18 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
             await get().fetchPapers(projectId); // Refresh list
         } catch (error) {
             console.error('Failed to add paper');
+            throw error;
+        }
+    },
+
+    deletePaper: async (paperId) => {
+        try {
+            await axios.delete(`${API_URL}/api/papers/${paperId}`);
+            set((state) => ({
+                papers: state.papers.filter((p) => p.id !== paperId)
+            }));
+        } catch (error) {
+            console.error('Failed to delete paper');
             throw error;
         }
     }

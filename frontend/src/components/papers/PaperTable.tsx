@@ -25,7 +25,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
-    const { fetchPapers } = useProjectStore();
+    const { fetchPapers, deletePaper } = useProjectStore();
     const [processingId, setProcessingId] = useState<string | null>(null);
     const [detailModal, setDetailModal] = useState<{ isOpen: boolean; title: string; content: any }>({
         isOpen: false,
@@ -36,8 +36,8 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
     const handleDelete = async (paperId: string) => {
         if (!confirm('Are you sure you want to delete this paper?')) return;
         try {
-            await axios.delete(`${API_URL}/api/projects/${projectId}/papers/${paperId}`);
-            fetchPapers(projectId);
+            await deletePaper(paperId);
+            // No need to fetchPapers manually as store updates local state
         } catch (error) {
             console.error('Failed to delete paper', error);
         }
