@@ -17,6 +17,7 @@ export default function SettingsPage() {
     const [modelProvider, setModelProvider] = useState('claude');
     const [apiKey, setApiKey] = useState('');
     const [isTesting, setIsTesting] = useState(false);
+    const [isTestingLLM, setIsTestingLLM] = useState(false);
 
     // Masking state
     const [isEditingKey, setIsEditingKey] = useState(false);
@@ -31,6 +32,21 @@ export default function SettingsPage() {
             setApiKey(currentSettings.api_key || '');
         });
     }, [fetchSettings]);
+
+    const handleTestLLM = async () => {
+        setIsTestingLLM(true);
+        try {
+            await axios.post(`${API_URL}/api/settings/test-llm`, {
+                provider: modelProvider,
+                api_key: apiKey
+            });
+            toast.success(`Successfully connected to ${modelProvider}!`);
+        } catch (error) {
+            toast.error(`Failed to connect to ${modelProvider}. Check your API Key.`);
+        } finally {
+            setIsTestingLLM(false);
+        }
+    };
 
     const handleSave = async () => {
         updateSettings({
@@ -96,17 +112,21 @@ export default function SettingsPage() {
 
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">API Key</label>
-                                <div className="relative">
-                                    <Input
-                                        type={isEditingKey ? "text" : "text"}
-                                        value={isEditingKey ? apiKey : getMaskedKey(apiKey)}
-                                        onChange={(e) => setApiKey(e.target.value)}
-                                        onFocus={() => setIsEditingKey(true)}
-                                        onBlur={() => setIsEditingKey(false)}
-                                        placeholder="sk-..."
-                                        className={!isEditingKey && apiKey ? "text-muted-foreground" : ""}
-                                    />
-                                    {/* Helper text or clear button could go here */}
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <Input
+                                            type={isEditingKey ? "text" : "text"}
+                                            value={isEditingKey ? apiKey : getMaskedKey(apiKey)}
+                                            onChange={(e) => setApiKey(e.target.value)}
+                                            onFocus={() => setIsEditingKey(true)}
+                                            onBlur={() => setIsEditingKey(false)}
+                                            placeholder="sk-..."
+                                            className={!isEditingKey && apiKey ? "text-muted-foreground" : ""}
+                                        />
+                                    </div>
+                                    <Button variant="outline" onClick={handleTestLLM} isLoading={isTestingLLM} disabled={!apiKey}>
+                                        Test
+                                    </Button>
                                 </div>
                             </div>
                         </div>

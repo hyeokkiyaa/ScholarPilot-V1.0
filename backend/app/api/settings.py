@@ -31,6 +31,27 @@ def update_settings(settings_update: SettingsUpdate, db: Session = Depends(get_d
     db.commit()
     return updated
 
+from pydantic import BaseModel
+from app.adapters.model_adapter import get_model_adapter
+
+class TestLLMRequest(BaseModel):
+    provider: str
+    api_key: str
+
+@router.post("/test-llm")
+async def test_llm_connection(request: TestLLMRequest):
+    try:
+        adapter = get_model_adapter(request.provider, request.api_key)
+        success = await adapter.test_connection()
+        if success:
+            return {"status": "ok", "message": f"Successfully connected to {request.provider}"}
+        else:
+             raise HTTPException(status_code=400, detail=f"Failed to connect to {request.provider}")
+    except ValueError as e:
+         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+         raise HTTPException(status_code=500, detail=f"Connection error: {str(e)}")
+
 @router.post("/test-connection")
 async def test_connection():
     # Placeholder until adapters are implemented
