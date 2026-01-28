@@ -69,6 +69,10 @@ async def process_paper_task(paper_id: str, project_id: str):
         results_map = await agent.analyze_paper(paper.raw_content, columns)
         
         # 5. Save Results
+        # Map column IDs to tool names
+        col_tool_map = {c.id: c.tool_name for c in columns}
+
+        # 5. Save Results
         for col_id, res_data in results_map.items():
             # Check if result exists
             existing_result = db.query(Result).filter(
@@ -77,6 +81,14 @@ async def process_paper_task(paper_id: str, project_id: str):
             ).first()
             
             value = res_data['value']
+            
+            # Special Handling: If this is metadata_extractor, try to update Paper Title
+            tool_name = col_tool_map.get(col_id)
+            if tool_name == "metadata_extractor" and value and isinstance(value, dict):
+                extracted_title = value.get("title") or value.get("Title")
+                if extracted_title and isinstance(extracted_title, str):
+                    paper.title = extracted_title
+            
             if value is None:
                 value_str = None
             elif isinstance(value, (dict, list)):

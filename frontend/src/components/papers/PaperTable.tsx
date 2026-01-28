@@ -68,10 +68,28 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
             header: 'Paper',
             cell: (info) => {
                 const paper = info.row.original;
+                let displayTitle = paper.title || 'Untitled';
+
+                // Use extracted title if available
+                const metadataResult = paper.results?.['metadata_extractor'];
+                if (metadataResult?.value) {
+                    try {
+                        // Value might be stringified JSON or object (if already parsed by store/axios - but usually string from backend)
+                        const metadata = typeof metadataResult.value === 'string'
+                            ? JSON.parse(metadataResult.value)
+                            : metadataResult.value;
+
+                        if (metadata?.Title) displayTitle = metadata.Title;
+                        else if (metadata?.title) displayTitle = metadata.title;
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+
                 return (
                     <div className="min-w-[200px] max-w-[300px]">
-                        <div className="font-medium truncate" title={paper.title || 'Untitled'}>
-                            {paper.title || 'Untitled'}
+                        <div className="font-medium truncate" title={displayTitle}>
+                            {displayTitle}
                         </div>
                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                             {paper.source_url && (
