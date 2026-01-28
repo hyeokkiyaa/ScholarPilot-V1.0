@@ -14,6 +14,8 @@ import { cn } from '../../lib/utils';
 import axios from 'axios';
 import { useProjectStore } from '../../stores/projectStore';
 import { ResultDetailModal } from './ResultDetailModal';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface PaperTableProps {
     papers: Paper[];
@@ -105,6 +107,67 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
         }),
     ];
 
+
+
+    // ...
+
+    const renderResult = (value: any) => {
+        if (!value) return <span className="text-muted-foreground">-</span>;
+
+        // Try parsing JSON if it's a string looking like JSON
+        let content = value;
+        if (typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
+            try {
+                content = JSON.parse(value);
+            } catch (e) {
+                // Not JSON, treat as string
+            }
+        }
+
+        // 1. Array (e.g. Baselines, Keywords) - Compact View
+        if (Array.isArray(content)) {
+            return (
+                <div className="text-xs text-foreground line-clamp-3" title={content.join(", ")}>
+                    {content.join(", ")}
+                </div>
+            );
+        }
+
+        // 2. Object (Metadata style)
+        if (typeof content === 'object' && content !== null) {
+            const entries = Object.entries(content);
+            // Show only first 3 items in table view
+            const previewEntries = entries.slice(0, 3);
+            const hasMore = entries.length > 3;
+
+            return (
+                <div className="text-xs space-y-0.5">
+                    {previewEntries.map(([k, v]) => {
+                        // Skip null/empty values for cleaner view
+                        if (v === null || v === "" || (Array.isArray(v) && v.length === 0)) return null;
+
+                        return (
+                            <div key={k} className="flex items-baseline gap-1">
+                                <span className="font-semibold text-muted-foreground capitalize text-[10px] whitespace-nowrap">{k.replace(/_/g, ' ')}:</span>
+                                <span className="truncate max-w-[150px]">{Array.isArray(v) ? v.join(", ") : String(v)}</span>
+                            </div>
+                        );
+                    })}
+                    {hasMore && <span className="text-[10px] text-muted-foreground italic">+{entries.length - 3} more...</span>}
+                </div>
+            );
+        }
+
+        // 3. String (Markdown)
+        return (
+            <div className="prose prose-sm dark:prose-invert max-w-none text-xs line-clamp-4">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {String(content)}
+                </ReactMarkdown>
+            </div>
+        );
+    };
+
     const dynamicCols = columns.map((col) =>
         columnHelper.accessor(row => {
             const result = row.results?.[col.id];
@@ -129,14 +192,13 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
                 // Click to view details
                 return (
                     <div
-                        className="max-h-[100px] overflow-hidden text-sm min-w-[150px] cursor-pointer hover:bg-muted/50 p-1 rounded transition-colors group relative"
+                        className="max-h-[150px] overflow-hidden text-sm min-w-[200px] cursor-pointer hover:bg-muted/50 p-2 rounded transition-colors group relative border border-transparent hover:border-border"
                         onClick={() => openDetail(col.name, value)}
                     >
-                        <div className="line-clamp-4 whitespace-pre-wrap">
-                            {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
-                        </div>
+                        {renderResult(value)}
+
                         {/* Hover hint */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-white/50 backdrop-blur-[1px] transition-opacity">
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-white/50 dark:bg-black/50 backdrop-blur-[1px] transition-opacity">
                             <Eye className="h-4 w-4 text-primary" />
                         </div>
                     </div>
@@ -195,7 +257,10 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <tr key={headerGroup.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                     {headerGroup.headers.map((header) => (
-                                        <th key={header.id} className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+                                        <th key={header.id} className={cn(
+                                            "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+                                            header.column.id === 'actions' && "sticky right-0 bg-background z-20 border-l"
+                                        )}>
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -215,7 +280,10 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
                                         className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                                     >
                                         {row.getVisibleCells().map((cell) => (
-                                            <td key={cell.id} className="p-4 align-top [&:has([role=checkbox])]:pr-0">
+                                            <td key={cell.id} className={cn(
+                                                "p-4 align-top [&:has([role=checkbox])]:pr-0",
+                                                cell.column.id === 'actions' && "sticky right-0 bg-background z-10 border-l"
+                                            )}>
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </td>
                                         ))}

@@ -7,13 +7,18 @@ class RelatedWorkSummarizer(BaseTool):
     async def run(self, paper_content: str, **kwargs) -> str:
         prompt = """
 Summarize the related work discussed in this paper.
-Group by category/theme if possible.
-Highlight how this paper differs from or builds upon related work.
+Format the output in Markdown using bold headers and bullet points.
+Structure the summary exactly as follows:
+
+### **Key Themes**
+*   **[Theme/Category Name]**: [Brief summary of work in this area]
+*   **[Theme/Category Name]**: [Brief summary of work in this area]
+
+### **Differentiation**
+[Explanation of how this paper differs from or builds upon the related work]
 
 Paper content:
 {content}
-
-Related work summary:
 """.format(content=paper_content[:12000])
         
         return await self.model.complete(prompt, self.get_system_prompt())

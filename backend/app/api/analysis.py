@@ -10,6 +10,7 @@ from app.models.column import ColumnDef
 from app.agents.orchestrator import OrchestratorAgent
 from app.adapters.model_adapter import get_model_adapter
 import logging
+import json
 from typing import List
 
 router = APIRouter()
@@ -75,11 +76,13 @@ async def process_paper_task(paper_id: str, project_id: str):
                 Result.column_id == col_id
             ).first()
             
-            value_str = str(res_data['value']) if res_data['value'] is not None else None
-            # If value is complex (list/dict), agent might return it as object.
-            # Result model has 'value' as Text (string). We should stringify if needed, 
-            # or assumption is agent returns string/JSON string.
-            # Orchestrator usually returns extracted text string.
+            value = res_data['value']
+            if value is None:
+                value_str = None
+            elif isinstance(value, (dict, list)):
+                value_str = json.dumps(value)
+            else:
+                value_str = str(value)
             
             if existing_result:
                 existing_result.value = value_str

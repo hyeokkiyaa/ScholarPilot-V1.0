@@ -7,18 +7,21 @@ class MethodologyAnalyzer(BaseTool):
     async def run(self, paper_content: str, **kwargs) -> str:
         prompt = """
 Analyze the methodology of this research paper.
-Include:
-1. Overall approach/framework
-2. Key techniques or algorithms used
-3. System architecture (if applicable)
-4. Evaluation methodology
+Format the output in Markdown using bold headers and bullet points.
+Structure the analysis exactly as follows:
 
-Keep the analysis concise but comprehensive.
+### **Framework Overview**
+[Concise description of the overall approach]
+
+### **Key Techniques**
+*   **[Technique Name]**: [Brief description]
+*   **[Technique Name]**: [Brief description]
+
+### **Evaluation Setup**
+[Description of datasets, metrics, or experimental setup]
 
 Paper content:
 {content}
-
-Methodology analysis:
 """.format(content=paper_content[:12000])
         
         return await self.model.complete(prompt, self.get_system_prompt())
