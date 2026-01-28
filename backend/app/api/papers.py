@@ -7,6 +7,8 @@ from app.models.project import Project
 from app.schemas.paper import PaperCreate, PaperUpdate, PaperResponse
 # from app.agents.input_router import InputRouterAgent # Phase 2
 
+from app.parsers.pdf_parser import PDFParser
+
 router = APIRouter()
 
 @router.get("/projects/{project_id}/papers", response_model=List[PaperResponse])
@@ -35,11 +37,21 @@ async def create_paper(
     db_paper = Paper(project_id=project_id, status="queued")
     
     if file:
-        # Save file (Phase 2 implementation details)
-        # For now just set name
+        # Save file name
         db_paper.title = file.filename
         db_paper.source_type = "pdf"
-        # In real impl, we'd save to disk and set pdf_path
+        
+        # Parse PDF Content
+        try:
+            content = await file.read()
+            parser = PDFParser()
+            text = await parser.parse(content)
+            db_paper.raw_content = text
+        except Exception as e:
+            print(f"Error parsing PDF: {e}")
+            db_paper.error_message = f"Failed to parse PDF: {str(e)}"
+            db_paper.status = "error"
+            
     elif input_value:
         db_paper.source_url = input_value
         db_paper.source_type = "url" # or detect type logic

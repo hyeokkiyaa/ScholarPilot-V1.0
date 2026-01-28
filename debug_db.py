@@ -30,12 +30,23 @@ try:
     print("Tables found:", [t[0] for t in tables])
 
     if ('papers',) in tables:
-        cursor.execute("SELECT id, title, status FROM papers")
+        cursor.execute("SELECT id, title, status, error_message FROM papers")
         papers = cursor.fetchall()
         print(f"\nFound {len(papers)} papers in DB:")
         for paper in papers:
-            print(f"- {paper[1]} (ID: {paper[0]}, Status: {paper[2]})")
+            print(f"- {paper[1]} (ID: {paper[0]}, Status: {paper[2]}, Error: {paper[3]})")
             
+            # Get results for this paper
+            cursor.execute(f"SELECT column_id, status, error_message, value FROM results WHERE paper_id = '{paper[0]}'")
+            results = cursor.fetchall()
+            if results:
+                print("  Results:")
+                for res in results:
+                    val_preview = (res[3][:50] + '...') if res[3] else 'None'
+                    print(f"    - Column {res[0]}: Status={res[1]}, Error={res[2]}, Value={val_preview}")
+            else:
+                print("  No results found.")
+
         if len(papers) == 0:
             print("No papers found. The upload process is likely failing before DB commit.")
     else:

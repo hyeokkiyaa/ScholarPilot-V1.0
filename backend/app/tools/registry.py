@@ -1,9 +1,39 @@
-# We will import tool classes here as we create them
-# from app.tools.metadata_extractor import MetadataExtractor
-# ...
+from app.tools.metadata_extractor import MetadataExtractor
+from app.tools.summarizer import Summarizer
+from app.tools.one_sentence_summary import OneSentenceSummary
+from app.tools.contribution_extractor import ContributionExtractor
+from app.tools.methodology_analyzer import MethodologyAnalyzer
+from app.tools.keyword_tagger import KeywordTagger
+from app.tools.architecture_extractor import ArchitectureExtractor
+from app.tools.limitation_finder import LimitationFinder
+from app.tools.threat_to_validity import ThreatToValidity
+from app.tools.baseline_extractor import BaselineExtractor
+from app.tools.dataset_extractor import DatasetExtractor
+from app.tools.metric_extractor import MetricExtractor
+from app.tools.research_question_extractor import ResearchQuestionExtractor
+from app.tools.related_work_summarizer import RelatedWorkSummarizer
+from app.tools.citation_context import CitationContext
+from app.tools.reproducibility_checker import ReproducibilityChecker
+from app.tools.custom_prompt import CustomPromptTool
 
 TOOL_REGISTRY = {
-    # To be populated as tools are implemented
+    "metadata_extractor": MetadataExtractor,
+    "summarizer": Summarizer,
+    "one_sentence_summary": OneSentenceSummary,
+    "contribution_extractor": ContributionExtractor,
+    "methodology_analyzer": MethodologyAnalyzer,
+    "keyword_tagger": KeywordTagger,
+    "architecture_extractor": ArchitectureExtractor,
+    "limitation_finder": LimitationFinder,
+    "threat_to_validity": ThreatToValidity,
+    "baseline_extractor": BaselineExtractor,
+    "dataset_extractor": DatasetExtractor,
+    "metric_extractor": MetricExtractor,
+    "research_question_extractor": ResearchQuestionExtractor,
+    "related_work_summarizer": RelatedWorkSummarizer,
+    "citation_context": CitationContext,
+    "reproducibility_checker": ReproducibilityChecker,
+    "custom_prompt": CustomPromptTool
 }
 
 TOOL_INFO = {

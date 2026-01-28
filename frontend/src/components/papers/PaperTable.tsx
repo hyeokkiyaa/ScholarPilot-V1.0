@@ -46,7 +46,7 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
     const handleRetry = async (paperId: string) => {
         setProcessingId(paperId);
         try {
-            await axios.post(`${API_URL}/api/projects/${projectId}/papers/${paperId}/retry`);
+            await axios.post(`${API_URL}/api/papers/${paperId}/retry`);
             setTimeout(() => fetchPapers(projectId), 2000);
         } catch (error) {
             console.error('Failed to retry analysis', error);
