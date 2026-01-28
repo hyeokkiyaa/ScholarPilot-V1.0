@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 
@@ -42,6 +42,13 @@ class PaperResponse(PaperBase):
     # We might want to include results or fetch them separately. 
     # For list views, having a dictionary of results is useful.
     results: Dict[str, ResultResponse] = {} 
+
+    @field_validator('results', mode='before')
+    @classmethod
+    def transform_results(cls, v: Any) -> Dict[str, Any]:
+        if isinstance(v, list):
+            return {result.column_id: result for result in v}
+        return v
 
     class Config:
         from_attributes = True

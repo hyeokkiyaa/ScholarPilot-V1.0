@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.database import get_db
@@ -19,7 +19,7 @@ def list_papers(project_id: str, db: Session = Depends(get_db)):
 @router.post("/projects/{project_id}/papers", response_model=PaperResponse)
 async def create_paper(
     project_id: str, 
-    paper_in: PaperCreate = None, 
+    input_value: Optional[str] = Form(None),
     file: UploadFile = File(None), 
     db: Session = Depends(get_db)
 ):
@@ -28,7 +28,7 @@ async def create_paper(
         raise HTTPException(status_code=404, detail="Project not found")
     
     # Validation
-    if not file and (not paper_in or not paper_in.input_value):
+    if not file and not input_value:
          raise HTTPException(status_code=400, detail="Either file or input_value must be provided")
 
     # Basic creation logic for now
@@ -40,10 +40,10 @@ async def create_paper(
         db_paper.title = file.filename
         db_paper.source_type = "pdf"
         # In real impl, we'd save to disk and set pdf_path
-    elif paper_in:
-        db_paper.source_url = paper_in.input_value
+    elif input_value:
+        db_paper.source_url = input_value
         db_paper.source_type = "url" # or detect type logic
-        db_paper.title = paper_in.input_value # Temporary
+        db_paper.title = input_value # Temporary
         
     db.add(db_paper)
     db.commit()
