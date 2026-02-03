@@ -1,7 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { cn } from '../../lib/utils';
-import { LayoutDashboard, Settings as SettingsIcon } from 'lucide-react';
+import { LayoutDashboard, Settings as SettingsIcon, Menu } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { MobileSidebar } from './MobileSidebar';
+import { Button } from '../common/Button';
 
 interface SidebarProps {
     className?: string;
@@ -10,12 +12,11 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
     const links = [
         { href: '/', icon: LayoutDashboard, label: 'Projects' },
-        // { href: '/templates', icon: Database, label: 'Templates' },
         { href: '/settings', icon: SettingsIcon, label: 'Settings' },
     ];
 
     return (
-        <div className={cn("pb-12 w-64 border-r min-h-screen bg-card", className)}>
+        <div className={cn("hidden lg:block pb-12 w-64 border-r min-h-screen bg-card", className)}>
             <div className="space-y-4 py-4">
                 <div className="px-3 py-2">
                     <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
@@ -50,12 +51,24 @@ interface HeaderProps {
 }
 
 export function Header({ title, actions }: HeaderProps) {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
     return (
-        <header className="flex h-14 items-center gap-4 border-b bg-background px-6">
-            <h1 className="text-lg font-semibold">{title}</h1>
-            <div className="ml-auto flex items-center gap-2">
-                {actions}
-            </div>
-        </header>
+        <>
+            <MobileSidebar open={mobileMenuOpen} setOpen={setMobileMenuOpen} />
+            <header className="flex h-14 items-center gap-4 border-b bg-background px-6">
+                <Button
+                    variant="ghost"
+                    className="-ml-2 px-2 hover:bg-transparent lg:hidden"
+                    onClick={() => setMobileMenuOpen(true)}
+                >
+                    <Menu className="h-6 w-6" />
+                </Button>
+                <h1 className="text-lg font-semibold">{title}</h1>
+                <div className="ml-auto flex items-center gap-2">
+                    {actions}
+                </div>
+            </header>
+        </>
     );
 }
