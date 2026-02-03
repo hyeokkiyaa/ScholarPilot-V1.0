@@ -4,15 +4,19 @@ import { LayoutDashboard, Settings as SettingsIcon, Menu } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { MobileSidebar } from './MobileSidebar';
 import { Button } from '../common/Button';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
     className?: string;
 }
 
 export function Sidebar({ className }: SidebarProps) {
+    const { t } = useTranslation();
+
     const links = [
-        { href: '/', icon: LayoutDashboard, label: 'Projects' },
-        { href: '/settings', icon: SettingsIcon, label: 'Settings' },
+        { href: '/', icon: LayoutDashboard, label: t('sidebar.projects') },
+        { href: '/settings', icon: SettingsIcon, label: t('sidebar.settings') },
     ];
 
     return (
@@ -66,6 +70,8 @@ export function Header({ title, actions }: HeaderProps) {
                 </Button>
                 <h1 className="text-lg font-semibold">{title}</h1>
                 <div className="ml-auto flex items-center gap-2">
+                    <LanguageSwitcher />
+                    <div className="h-4 w-px bg-border mx-2" />
                     {actions}
                 </div>
             </header>

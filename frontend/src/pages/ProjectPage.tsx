@@ -9,10 +9,12 @@ import { AddPaperModal } from '../components/papers/AddPaperModal';
 import { ColumnManagerModal } from '../components/columns/ColumnManagerModal';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function ProjectPage() {
+    const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const { currentProject, papers, columns, fetchProjectDetails, fetchPapers, isLoading } = useProjectStore();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -38,10 +40,10 @@ export default function ProjectPage() {
         setIsAnalyzing(true);
         try {
             await axios.post(`${API_URL}/api/analyze`, { project_id: id });
-            toast.success('Analysis started');
+            toast.success(t('project.analysisStarted'));
             fetchPapers(id);
         } catch (error) {
-            toast.error('Failed to start analysis');
+            toast.error(t('project.analysisFailed'));
         } finally {
             setIsAnalyzing(false);
         }
@@ -54,9 +56,9 @@ export default function ProjectPage() {
             setIsExporting(true);
             try {
                 const res = await axios.post(`${API_URL}/api/projects/${id}/export/notion`);
-                toast.success(`Exported ${res.data.exported} papers to Notion!`);
+                toast.success(t('project.notionExportSuccess', { count: res.data.exported }));
             } catch (error) {
-                toast.error('Failed to export to Notion');
+                toast.error(t('project.notionExportFail'));
             } finally {
                 setIsExporting(false);
             }
@@ -69,11 +71,11 @@ export default function ProjectPage() {
     };
 
     if (isLoading && !currentProject) {
-        return <div className="flex h-screen items-center justify-center">Loading...</div>;
+        return <div className="flex h-screen items-center justify-center">{t('project.loading')}</div>;
     }
 
     if (!currentProject) {
-        return <div className="flex h-screen items-center justify-center">Project not found</div>;
+        return <div className="flex h-screen items-center justify-center">{t('project.notFound')}</div>;
     }
 
     return (
@@ -85,31 +87,31 @@ export default function ProjectPage() {
                     actions={
                         <div className="flex gap-2">
                             <div className="flex items-center gap-1 mr-2 border-r pr-2">
-                                <Button variant="ghost" size="sm" onClick={() => handleExport('excel')} title="Export Excel">
+                                <Button variant="ghost" size="sm" onClick={() => handleExport('excel')} title={t('project.exportExcel')}>
                                     XLSX
                                 </Button>
-                                <Button variant="ghost" size="sm" onClick={() => handleExport('csv')} title="Export CSV">
+                                <Button variant="ghost" size="sm" onClick={() => handleExport('csv')} title={t('project.exportCSV')}>
                                     CSV
                                 </Button>
-                                <Button variant="ghost" size="sm" onClick={() => handleExport('markdown')} title="Export Markdown">
+                                <Button variant="ghost" size="sm" onClick={() => handleExport('markdown')} title={t('project.exportMarkdown')}>
                                     MD
                                 </Button>
-                                <Button variant="ghost" size="sm" onClick={() => handleExport('notion')} disabled={isExporting} title="Export to Notion">
+                                <Button variant="ghost" size="sm" onClick={() => handleExport('notion')} disabled={isExporting} title={t('project.exportNotion')}>
                                     Notion
                                 </Button>
                             </div>
 
                             <Button variant="outline" onClick={() => setIsColumnModalOpen(true)}>
                                 <Settings2 className="mr-2 h-4 w-4" />
-                                Columns
+                                {t('project.columnsButton')}
                             </Button>
                             <Button variant="secondary" onClick={handleAnalyzeAll} disabled={isAnalyzing}>
                                 <Play className="mr-2 h-4 w-4" />
-                                Run Analysis
+                                {t('project.runAnalysisButton')}
                             </Button>
                             <Button onClick={() => setIsAddModalOpen(true)}>
                                 <Upload className="mr-2 h-4 w-4" />
-                                Add Paper
+                                {t('project.addPaperButton')}
                             </Button>
                         </div>
                     }

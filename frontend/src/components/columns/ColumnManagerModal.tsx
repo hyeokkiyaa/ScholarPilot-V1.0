@@ -6,6 +6,7 @@ import { X, Plus, Trash2 } from 'lucide-react';
 
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 interface ColumnManagerModalProps {
     isOpen: boolean;
@@ -15,52 +16,52 @@ interface ColumnManagerModalProps {
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-// Hardcoded for now, should come from backend registry ideally
-const AVAILABLE_TOOLS: { value: string; label: string; description: string }[] = [
-    { value: 'metadata_extractor', label: 'Metadata', description: 'Title, Authors, Year' },
-    { value: 'summarizer', label: 'Summary', description: '3-5 sentence summary' },
-    { value: 'one_sentence_summary', label: 'One Sentence Summary', description: 'Single sentence' },
-    { value: 'contribution_extractor', label: 'Contributions', description: 'List of contributions' },
-    { value: 'methodology_analyzer', label: 'Methodology', description: 'Approach analysis' },
-    { value: 'keyword_tagger', label: 'Keywords', description: 'Fields and keywords' },
-    { value: 'architecture_extractor', label: 'Architecture', description: 'System architecture' },
-    { value: 'limitation_finder', label: 'Limitations', description: 'Limitations & Future Work' },
-    { value: 'threat_to_validity', label: 'Validity Threats', description: 'Internal/External validity' },
-    { value: 'baseline_extractor', label: 'Baselines', description: 'Comparison baselines' },
-    { value: 'dataset_extractor', label: 'Datasets', description: 'Used datasets' },
-    { value: 'metric_extractor', label: 'Metrics', description: 'Evaluation metrics' },
-    { value: 'research_question_extractor', label: 'Research Questions', description: 'RQs' },
-    { value: 'related_work_summarizer', label: 'Related Work', description: 'Summary of related work' },
-    { value: 'citation_context', label: 'Key Citations', description: 'Important references' },
-    { value: 'reproducibility_checker', label: 'Reproducibility', description: 'Code/Data availability' },
-    { value: 'custom_prompt', label: 'Custom Prompt', description: 'Your own instruction' },
+const TOOL_KEYS = [
+    'metadata_extractor',
+    'summarizer',
+    'one_sentence_summary',
+    'contribution_extractor',
+    'methodology_analyzer',
+    'keyword_tagger',
+    'architecture_extractor',
+    'limitation_finder',
+    'threat_to_validity',
+    'baseline_extractor',
+    'dataset_extractor',
+    'metric_extractor',
+    'research_question_extractor',
+    'related_work_summarizer',
+    'citation_context',
+    'reproducibility_checker',
+    'custom_prompt',
 ];
 
 export function ColumnManagerModal({ isOpen, onClose, projectId }: ColumnManagerModalProps) {
+    const { t } = useTranslation();
     const { columns, createColumn, fetchColumns } = useProjectStore();
     const [isAdding, setIsAdding] = useState(false);
 
     // New Column State
     const [newName, setNewName] = useState('');
-    const [selectedTool, setSelectedTool] = useState(AVAILABLE_TOOLS[0].value);
+    const [selectedTool, setSelectedTool] = useState(TOOL_KEYS[0]);
     const [customPrompt, setCustomPrompt] = useState('');
 
     if (!isOpen) return null;
 
     const handleDelete = async (columnId: string) => {
-        if (!confirm('Delete this column? Existing results will be lost.')) return;
+        if (!confirm(t('columns.deleteConfirm'))) return;
         try {
             await axios.delete(`${API_URL}/api/columns/${columnId}`);
             fetchColumns(projectId);
-            toast.success('Column deleted');
+            toast.success(t('columns.deleteSuccess'));
         } catch (error) {
-            toast.error('Failed to delete column');
+            toast.error(t('columns.deleteFail'));
         }
     };
 
     const handleAdd = async () => {
         if (!newName) {
-            toast.error('Name is required');
+            toast.error(t('columns.nameRequired'));
             return;
         }
 
@@ -70,13 +71,13 @@ export function ColumnManagerModal({ isOpen, onClose, projectId }: ColumnManager
                 tool_name: selectedTool,
                 custom_prompt: selectedTool === 'custom_prompt' ? customPrompt : null
             });
-            toast.success('Column added');
+            toast.success(t('columns.addSuccess'));
             // Reset form
             setNewName('');
             setCustomPrompt('');
             setIsAdding(false);
         } catch (error) {
-            toast.error('Failed to add column');
+            toast.error(t('columns.addFail'));
         }
     };
 
@@ -84,7 +85,7 @@ export function ColumnManagerModal({ isOpen, onClose, projectId }: ColumnManager
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="w-full max-w-lg rounded-lg bg-background p-6 shadow-xl animate-in fade-in zoom-in duration-200 flex flex-col max-h-[85vh]">
                 <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                    <h2 className="text-xl font-semibold">Manage Columns</h2>
+                    <h2 className="text-xl font-semibold">{t('columns.title')}</h2>
                     <Button variant="ghost" size="icon" onClick={onClose}>
                         <X className="h-4 w-4" />
                     </Button>
@@ -99,7 +100,9 @@ export function ColumnManagerModal({ isOpen, onClose, projectId }: ColumnManager
                                     <span className="text-muted-foreground text-sm font-mono w-6">{index + 1}</span>
                                     <div>
                                         <div className="font-medium">{col.name}</div>
-                                        <div className="text-xs text-muted-foreground">{col.tool_name}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                            {t(`columns.tools.${col.tool_name}`, { defaultValue: col.tool_name })}
+                                        </div>
                                     </div>
                                 </div>
                                 <Button
@@ -117,42 +120,44 @@ export function ColumnManagerModal({ isOpen, onClose, projectId }: ColumnManager
                     {/* Add New Section */}
                     {isAdding ? (
                         <div className="border rounded-md p-4 bg-muted/30 space-y-4 mt-4">
-                            <h3 className="font-medium text-sm">New Column</h3>
+                            <h3 className="font-medium text-sm">{t('columns.newColumn')}</h3>
                             <Input
-                                label="Column Name"
+                                label={t('columns.columnNameLabel')}
                                 value={newName}
                                 onChange={(e) => setNewName(e.target.value)}
-                                placeholder="e.g. Key Findings"
+                                placeholder={t('columns.columnNamePlaceholder')}
                             />
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Tool</label>
+                                <label className="text-sm font-medium">{t('columns.toolLabel')}</label>
                                 <select
                                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                                     value={selectedTool}
                                     onChange={(e) => setSelectedTool(e.target.value)}
                                 >
-                                    {AVAILABLE_TOOLS.map(t => (
-                                        <option key={t.value} value={t.value}>{t.label} - {t.description}</option>
+                                    {TOOL_KEYS.map(key => (
+                                        <option key={key} value={key}>
+                                            {t(`columns.tools.${key}`)} - {t(`columns.tools.${key}_desc`)}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
 
                             {selectedTool === 'custom_prompt' && (
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Custom Prompt</label>
+                                    <label className="text-sm font-medium">{t('columns.customPromptLabel')}</label>
                                     <textarea
                                         className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                         value={customPrompt}
                                         onChange={(e) => setCustomPrompt(e.target.value)}
-                                        placeholder="Enter your instructions for the AI..."
+                                        placeholder={t('columns.customPromptPlaceholder')}
                                     />
                                 </div>
                             )}
 
                             <div className="flex justify-end gap-2 pt-2">
-                                <Button variant="ghost" onClick={() => setIsAdding(false)}>Cancel</Button>
-                                <Button onClick={handleAdd}>Save Column</Button>
+                                <Button variant="ghost" onClick={() => setIsAdding(false)}>{t('columns.cancel')}</Button>
+                                <Button onClick={handleAdd}>{t('columns.save')}</Button>
                             </div>
                         </div>
                     ) : (
@@ -162,7 +167,7 @@ export function ColumnManagerModal({ isOpen, onClose, projectId }: ColumnManager
                             onClick={() => setIsAdding(true)}
                         >
                             <Plus className="mr-2 h-4 w-4" />
-                            Add Column
+                            {t('columns.addColumn')}
                         </Button>
                     )}
                 </div>

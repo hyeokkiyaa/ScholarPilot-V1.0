@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Sidebar, Header } from '../components/layout/Layout'; // Fix import path based on previous step
+import { Sidebar, Header } from '../components/layout/Layout';
 import { useProjectStore } from '../stores/projectStore';
 import { Button } from '../components/common/Button';
 import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Input } from '../components/common/Input';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 
 // Basic modal implementation inline for now or separate component later
 import { Project } from '../types';
 
 export default function HomePage() {
+    const { t } = useTranslation(); // Initialize hook
     const { projects, fetchProjects, createProject, isLoading, templates, fetchTemplates } = useProjectStore();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newProjectName, setNewProjectName] = useState('');
@@ -31,18 +33,18 @@ export default function HomePage() {
         <div className="flex min-h-screen">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-                <Header title="Projects" />
+                <Header title={t('home.title')} />
                 <main className="flex-1 p-6">
                     <div className="mb-6 flex items-center justify-between">
-                        <h2 className="text-2xl font-bold tracking-tight">Your Projects</h2>
+                        <h2 className="text-2xl font-bold tracking-tight">{t('home.yourProjects')}</h2>
                         <Button onClick={() => setIsCreateModalOpen(true)}>
                             <Plus className="mr-2 h-4 w-4" />
-                            New Project
+                            {t('home.newProject')}
                         </Button>
                     </div>
 
                     {isLoading && projects.length === 0 ? (
-                        <div>Loading...</div>
+                        <div>{t('home.loading')}</div>
                     ) : (
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {projects.map((project: Project) => (
@@ -53,17 +55,17 @@ export default function HomePage() {
                                 >
                                     <h3 className="font-semibold">{project.name}</h3>
                                     <p className="text-sm text-muted-foreground mt-2">
-                                        Template: {project.template || 'Custom'}
+                                        {t('home.template')}: {project.template || t('home.customTemplate')}
                                     </p>
                                     <div className="mt-4 text-xs text-muted-foreground">
-                                        Last updated: {new Date(project.updated_at).toLocaleDateString()}
+                                        {t('home.lastUpdated')}: {new Date(project.updated_at).toLocaleDateString()}
                                     </div>
                                 </Link>
                             ))}
 
                             {projects.length === 0 && (
                                 <div className="col-span-full text-center py-12 text-muted-foreground">
-                                    No projects yet. Create one to get started.
+                                    {t('home.noProjects')}
                                 </div>
                             )}
                         </div>
@@ -75,15 +77,15 @@ export default function HomePage() {
             {isCreateModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                     <div className="w-full max-w-md rounded-lg bg-background p-6 shadow-lg">
-                        <h2 className="mb-4 text-lg font-semibold">Create New Project</h2>
+                        <h2 className="mb-4 text-lg font-semibold">{t('home.createModalTitle')}</h2>
                         <div className="space-y-4">
                             <Input
-                                label="Project Name"
+                                label={t('home.projectNameLabel')}
                                 value={newProjectName}
                                 onChange={(e) => setNewProjectName(e.target.value)}
                             />
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Template</label>
+                                <label className="text-sm font-medium">{t('home.template')}</label>
                                 <select
                                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                                     value={template}
@@ -96,10 +98,10 @@ export default function HomePage() {
                             </div>
                             <div className="flex justify-end gap-2 pt-4">
                                 <Button variant="ghost" onClick={() => setIsCreateModalOpen(false)}>
-                                    Cancel
+                                    {t('home.cancel')}
                                 </Button>
                                 <Button onClick={handleCreate} disabled={!newProjectName}>
-                                    Create
+                                    {t('home.create')}
                                 </Button>
                             </div>
                         </div>

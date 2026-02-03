@@ -3,19 +3,20 @@ import { Dialog, Transition } from '@headlessui/react';
 import { NavLink } from 'react-router-dom';
 import { X, LayoutDashboard, Settings as SettingsIcon } from 'lucide-react'; // Import icons directly for now
 import { cn } from '../../lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface MobileSidebarProps {
     open: boolean;
     setOpen: (open: boolean) => void;
 }
 
-// Duplicating links temporarily, will refactor to shared constant in next step
-const links = [
-    { href: '/', icon: LayoutDashboard, label: 'Projects' },
-    { href: '/settings', icon: SettingsIcon, label: 'Settings' },
-];
-
 export function MobileSidebar({ open, setOpen }: MobileSidebarProps) {
+    const { t } = useTranslation();
+
+    const links = [
+        { href: '/', icon: LayoutDashboard, label: t('sidebar.projects') },
+        { href: '/settings', icon: SettingsIcon, label: t('sidebar.settings') },
+    ];
     return (
         <Transition.Root show={open} as={Fragment}>
             <Dialog as="div" className="relative z-50 lg:hidden" onClose={setOpen}>
@@ -58,13 +59,13 @@ export function MobileSidebar({ open, setOpen }: MobileSidebarProps) {
                                         onClick={() => setOpen(false)}
                                     >
                                         <span className="sr-only">Close sidebar</span>
-                                        <X className="h-6 w-6 text-foreground" aria-hidden="true" />
+                                        <X className="h-6 w-6 text-white" aria-hidden="true" />
                                     </button>
                                 </div>
                             </Transition.Child>
 
-                            {/* Sidebar Content Matches Desktop Sidebar */}
-                            <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-card px-6 pb-4 border-r">
+                            {/* Sidebar Component for Mobile */}
+                            <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-card px-6 pb-4">
                                 <div className="flex h-16 shrink-0 items-center">
                                     <h2 className="text-lg font-semibold tracking-tight">
                                         ScholarPilot

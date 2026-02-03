@@ -5,10 +5,12 @@ import { Input } from '../components/common/Input';
 import { useSettingsStore } from '../stores/settingsStore';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function SettingsPage() {
+    const { t } = useTranslation();
     const { fetchSettings, updateSettings, saveSettings } = useSettingsStore();
 
     // Local state
@@ -40,9 +42,9 @@ export default function SettingsPage() {
                 provider: modelProvider,
                 api_key: apiKey
             });
-            toast.success(`Successfully connected to ${modelProvider}!`);
+            toast.success(t('settings.llmConnectionSuccess', { provider: modelProvider }));
         } catch (error) {
-            toast.error(`Failed to connect to ${modelProvider}. Check your API Key.`);
+            toast.error(t('settings.llmConnectionFail', { provider: modelProvider }));
         } finally {
             setIsTestingLLM(false);
         }
@@ -56,7 +58,7 @@ export default function SettingsPage() {
             api_key: apiKey
         });
         await saveSettings();
-        toast.success("Settings saved");
+        toast.success(t('settings.savedMessage'));
     };
 
     const handleTestNotion = async () => {
@@ -66,9 +68,9 @@ export default function SettingsPage() {
                 api_key: notionKey,
                 database_id: notionDbId
             });
-            toast.success("Notion connection successful!");
+            toast.success(t('settings.notionConnectionSuccess'));
         } catch (error) {
-            toast.error("Notion connection failed. Check credentials.");
+            toast.error(t('settings.notionConnectionFail'));
         } finally {
             setIsTesting(false);
         }
@@ -84,19 +86,19 @@ export default function SettingsPage() {
         <div className="flex min-h-screen">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-                <Header title="Settings" />
+                <Header title={t('settings.title')} />
                 <main className="flex-1 p-6 max-w-2xl">
                     <div className="space-y-8">
 
                         {/* Model Configuration */}
                         <div className="space-y-4 border p-4 rounded-md">
-                            <h2 className="text-lg font-semibold">Model Configuration</h2>
+                            <h2 className="text-lg font-semibold">{t('settings.modelConfigTitle')}</h2>
                             <p className="text-sm text-muted-foreground">
-                                Select your LLM provider and enter your API key.
+                                {t('settings.modelConfigDesc')}
                             </p>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Model Provider</label>
+                                <label className="text-sm font-medium">{t('settings.modelProviderLabel')}</label>
                                 <select
                                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     value={modelProvider}
@@ -111,7 +113,7 @@ export default function SettingsPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">API Key</label>
+                                <label className="text-sm font-medium">{t('settings.apiKeyLabel')}</label>
                                 <div className="flex gap-2">
                                     <div className="relative flex-1">
                                         <Input
@@ -125,20 +127,20 @@ export default function SettingsPage() {
                                         />
                                     </div>
                                     <Button variant="outline" onClick={handleTestLLM} isLoading={isTestingLLM} disabled={!apiKey}>
-                                        Test
+                                        {t('settings.testButton')}
                                     </Button>
                                 </div>
                             </div>
                         </div>
 
                         <div className="space-y-4 border p-4 rounded-md">
-                            <h2 className="text-lg font-semibold">Notion Integration</h2>
+                            <h2 className="text-lg font-semibold">{t('settings.notionConfigTitle')}</h2>
                             <p className="text-sm text-muted-foreground">
-                                Configure Notion to export your analysis results directly to a Notion Database.
+                                {t('settings.notionConfigDesc')}
                             </p>
 
                             <Input
-                                label="Notion API Key (Internal Integration Token)"
+                                label={t('settings.notionKeyLabel')}
                                 type="password"
                                 placeholder="secret_..."
                                 value={notionKey}
@@ -146,7 +148,7 @@ export default function SettingsPage() {
                             />
 
                             <Input
-                                label="Notion Database ID"
+                                label={t('settings.notionDbIdLabel')}
                                 placeholder="32 character ID"
                                 value={notionDbId}
                                 onChange={(e) => setNotionDbId(e.target.value)}
@@ -154,14 +156,14 @@ export default function SettingsPage() {
 
                             <div className="flex gap-2">
                                 <Button variant="outline" onClick={handleTestNotion} isLoading={isTesting} disabled={!notionKey || !notionDbId}>
-                                    Test Connection
+                                    {t('settings.testConnectionButton')}
                                 </Button>
                             </div>
                         </div>
 
                         <div className="flex justify-end">
                             <Button onClick={handleSave}>
-                                Save Settings
+                                {t('settings.saveButton')}
                             </Button>
                         </div>
 
