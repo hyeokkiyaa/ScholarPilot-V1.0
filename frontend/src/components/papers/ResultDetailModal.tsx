@@ -37,10 +37,24 @@ export function ResultDetailModal({ isOpen, onClose, title, content }: ResultDet
             if (Array.isArray(parsedContent)) {
                 return (
                     <div className="bg-muted/30 rounded-md border p-4">
-                        <ul className="list-disc list-inside space-y-1 text-sm text-foreground">
-                            {parsedContent.map((item: any, i: number) => (
-                                <li key={i}>{String(item)}</li>
-                            ))}
+                        <ul className="space-y-3 text-sm text-foreground">
+                            {parsedContent.map((item: any, i: number) => {
+                                if (typeof item === 'object' && item !== null) {
+                                    return (
+                                        <li key={i} className="bg-card p-3 rounded border">
+                                            <div className="grid grid-cols-1 gap-1">
+                                                {Object.entries(item).map(([k, v]) => (
+                                                    <div key={k} className="flex gap-2 text-xs">
+                                                        <span className="font-semibold text-muted-foreground uppercase min-w-[80px]">{k.replace(/_/g, ' ')}:</span>
+                                                        <span>{String(v)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </li>
+                                    );
+                                }
+                                return <li key={i} className="list-disc list-inside">{String(item)}</li>
+                            })}
                         </ul>
                     </div>
                 );
@@ -65,7 +79,16 @@ export function ResultDetailModal({ isOpen, onClose, title, content }: ResultDet
                                             {v.map((item: any, i: number) => (
                                                 <div key={i} className="flex items-start gap-2">
                                                     <span className="text-muted-foreground/60 select-none">•</span>
-                                                    <span>{String(item)}</span>
+                                                    <span>{typeof item === 'object' ? JSON.stringify(item) : String(item)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : typeof v === 'object' ? (
+                                        <div className="w-full space-y-2">
+                                            {Object.entries(v as object).map(([subK, subV]) => (
+                                                <div key={subK} className="flex gap-2 text-xs border-b border-border/50 pb-1 last:border-0 last:pb-0">
+                                                    <span className="font-semibold text-muted-foreground min-w-[100px]">{subK.replace(/_/g, ' ')}:</span>
+                                                    <span className="whitespace-pre-wrap">{String(subV)}</span>
                                                 </div>
                                             ))}
                                         </div>

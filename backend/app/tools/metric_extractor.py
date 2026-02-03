@@ -7,16 +7,21 @@ class MetricExtractor(BaseTool):
     
     async def run(self, paper_content: str, **kwargs) -> dict:
         prompt = """
-Extract evaluation metrics and key results from this paper.
-Return as JSON with:
-- metrics: list of metric names used
-- results: key results as object (metric: value or description)
+Analyze the paper to extract quantitative evaluation metrics and results.
+Focus on tables and the "Experiments" or "Results" sections.
+
+Return a JSON object with strictly two keys:
+1. "metrics": A list of strings, naming the metrics used (e.g. "Accuracy", "F1 Score", "BLEU").
+2. "results": An object where keys are the metric names and values are the specific scores/values reported in the paper. 
+   - Ensure you extract the VALUES (numbers, percentages), not just the names.
+   - If multiple models are compared, provide the best result or the main proposed method's result.
+   - Example format: {{ "Accuracy": "94.5%", "Inference Time": "12ms" }}
 
 Paper content:
 {content}
 
-Return JSON only:
-""".format(content=paper_content[:12000])
+Return ONLY valid JSON:
+""".format(content=paper_content[:15000])
         
         response = await self.model.complete(prompt, self.get_system_prompt())
         

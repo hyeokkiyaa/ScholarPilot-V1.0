@@ -142,11 +142,20 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
             }
         }
 
-        // 1. Array (e.g. Baselines, Keywords) - Compact View
+        // 1. Array (e.g. Baselines, Keywords, Datasets) - Compact View
         if (Array.isArray(content)) {
+            if (content.length === 0) return <span className="text-muted-foreground">-</span>;
+
+            const displayItems = content.map(item => {
+                if (typeof item === 'object' && item !== null) {
+                    return item.name || item.Title || JSON.stringify(item);
+                }
+                return String(item);
+            });
+
             return (
-                <div className="text-xs text-foreground line-clamp-3" title={content.join(", ")}>
-                    {content.join(", ")}
+                <div className="text-xs text-foreground line-clamp-3" title={displayItems.join(", ")}>
+                    {displayItems.join(", ")}
                 </div>
             );
         }
@@ -164,10 +173,18 @@ export function PaperTable({ papers, columns, projectId }: PaperTableProps) {
                         // Skip null/empty values for cleaner view
                         if (v === null || v === "" || (Array.isArray(v) && v.length === 0)) return null;
 
+                        let displayValue = String(v);
+                        if (Array.isArray(v)) {
+                            displayValue = v.join(", ");
+                        } else if (typeof v === 'object') {
+                            // Handle nested object (e.g. results in metrics)
+                            displayValue = Object.entries(v).map(([subK, subV]) => `${subK}: ${subV}`).join(", ");
+                        }
+
                         return (
                             <div key={k} className="flex items-baseline gap-1">
                                 <span className="font-semibold text-muted-foreground capitalize text-[10px] whitespace-nowrap">{k.replace(/_/g, ' ')}:</span>
-                                <span className="truncate max-w-[150px]">{Array.isArray(v) ? v.join(", ") : String(v)}</span>
+                                <span className="truncate max-w-[150px]">{displayValue}</span>
                             </div>
                         );
                     })}
