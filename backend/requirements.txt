@@ -12,3 +12,4 @@ pandas
 openpyxl
 tenacity
 beautifulsoup4
+tabulate

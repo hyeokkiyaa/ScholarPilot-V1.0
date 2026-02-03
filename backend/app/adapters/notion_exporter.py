@@ -42,20 +42,68 @@ class NotionExporter:
         column_map = {col.id: col.name for col in project.columns}
         
         if paper.results:
+            # Convert results list to dict for easier lookup
+            results_map = {r.column_id: r for r in paper.results}
+            
             for col_id, col_name in column_map.items():
-                result = paper.results.get(col_id)
+                result = results_map.get(col_id)
                 if result and result.value:
-                    # Notion has strict property type rules. 
-                    # For simplicity, we'll try to map everything to Rich Text first.
-                    # A robust implementation would check the column type/tool and map to specific Notion types (Select, Number, etc.)
-                    
-                    content_str = str(result.value)
+                    content_str = self._format_value(result.value)
+                     
+                    # Notion limit for text content is 2000 chars
                     if len(content_str) > 2000:
                          content_str = content_str[:1997] + "..."
                          
                     properties[col_name] = {
                         "rich_text": [{"text": {"content": content_str}}]
                     }
+    
+    def _format_value(self, value) -> str:
+        """Format complex objects into human-readable strings for Notion"""
+        if value is None:
+            return ""
+            
+        if isinstance(value, list):
+            # Empty list
+            if not value: return "-"
+            
+            # List of strings
+            if all(isinstance(x, str) for x in value):
+                return ", ".join(value)
+                
+            # List of objects
+            if all(isinstance(x, dict) for x in value):
+                items = []
+                for item in value:
+                    name = item.get('name') or item.get('title') or item.get('Title')
+                    if name:
+                        details = []
+                        if item.get('size'): details.append(str(item.get('size')))
+                        if item.get('url'): details.append(item.get('url'))
+                        item_str = name + (f" ({', '.join(details)})" if details else "")
+                        items.append(item_str)
+                    else:
+                         # Fallback
+                        vals = [str(v) for k,v in item.items() if v]
+                        items.append(", ".join(vals))
+                return "\n".join(items)
+                
+            return str(value)
+    
+        if isinstance(value, dict):
+            # Flatten dictionary
+            lines = []
+            for k, v in value.items():
+                if v is None or v == "": continue
+                str_v = str(v)
+                if isinstance(v, list):
+                    str_v = ", ".join([str(i) for i in v])
+                elif isinstance(v, dict):
+                    str_v = ", ".join([f"{sk}: {sv}" for sk, sv in v.items()])
+                lines.append(f"{k}: {str_v}")
+            return "\n".join(lines)
+    
+        return str(value)
         
         # Payload
         data = {
