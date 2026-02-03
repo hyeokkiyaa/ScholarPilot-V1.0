@@ -11,3 +11,4 @@ python-dotenv
 pandas
 openpyxl
 tenacity
+beautifulsoup4

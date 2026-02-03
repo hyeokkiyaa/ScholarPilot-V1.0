@@ -54,8 +54,20 @@ async def create_paper(
             
     elif input_value:
         db_paper.source_url = input_value
-        db_paper.source_type = "url" # or detect type logic
-        db_paper.title = input_value # Temporary
+        db_paper.source_type = "url" 
+        db_paper.title = input_value # Temporary title, will be updated by metadata extractor
+        
+        # New: Parse content from URL
+        try:
+            from app.parsers.url_parser import URLParser
+            url_parser = URLParser()
+            # This fetches content from web (HTML text or PDF bytes -> text)
+            text = await url_parser.parse(input_value)
+            db_paper.raw_content = text
+        except Exception as e:
+            print(f"Error parsing URL: {e}")
+            db_paper.error_message = f"Failed to fetch content from URL: {str(e)}"
+            db_paper.status = "error"
         
     db.add(db_paper)
     db.commit()
